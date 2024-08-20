@@ -8,6 +8,14 @@ const Display = ({ messages }) => {
               <p>{messageItem.val.username}</p>
               <p>Message: {messageItem.val.message}</p>
               <p>Time: {messageItem.val.time}</p>
+              {messageItem.val.imgUrl ? (
+                <img
+                  src={messageItem.val.imgUrl}
+                  alt={`image from ${messageItem.val.username}`}
+                />
+              ) : (
+                <p>No image uploaded</p>
+              )}
             </li>
           ))}
     </ol>

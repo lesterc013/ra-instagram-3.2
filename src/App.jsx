@@ -1,18 +1,25 @@
 import logo from '/logo.png'
 import './App.css'
+import { database, storage } from './firebase'
 import { onChildAdded, push, ref, set } from 'firebase/database'
-import { database } from './firebase'
+import {
+  uploadBytes,
+  getDownloadURL,
+  ref as storageRef,
+} from 'firebase/storage'
 import { useState, useEffect } from 'react'
 import Form from './Components/Form'
 import Display from './Components/Display'
 
 // Save the Firebase message folder name as a constant to avoid bugs due to misspelling
 const DB_MESSAGES_KEY = 'messages'
+const STORAGE_KEY = '/images'
 
 function App() {
   const [messages, setMessages] = useState([])
   const [username, setUsername] = useState('')
   const [message, setMessage] = useState('')
+  const [file, setFile] = useState(null)
 
   useEffect(() => {
     const messagesRef = ref(database, DB_MESSAGES_KEY)
@@ -26,21 +33,32 @@ function App() {
     })
   }, [])
 
-  const writeData = event => {
+  // When someone submits a post, need to first store the image in storage; then store the url in database
+  const handleSubmit = event => {
     event.preventDefault()
+    const fullStorageRef = storageRef(storage, STORAGE_KEY + file.name)
+
+    uploadBytes(fullStorageRef, file)
+      .then(() => {
+        getDownloadURL(fullStorageRef)
+          .then(imgUrl => {
+            writeData(imgUrl)
+          })
+          .catch(error => console.log(error))
+      })
+      .catch(error => console.log(error))
+  }
+
+  const writeData = imgUrl => {
     const messageListRef = ref(database, DB_MESSAGES_KEY)
     const newMessageRef = push(messageListRef)
     set(newMessageRef, {
       username,
       message,
       time: new Date().toLocaleString(),
+      imgUrl,
     })
   }
-
-  // // Convert messages in state to message JSX elements to render
-  // let messageListItems = messages.map(message => (
-  //   <li key={message.key}>{message.val}</li>
-  // ))
 
   return (
     <>
@@ -56,6 +74,8 @@ function App() {
           setUsername={setUsername}
           message={message}
           setMessage={setMessage}
+          setFile={setFile}
+          handleSubmit={handleSubmit}
         />
         <Display messages={messages} />
       </div>
