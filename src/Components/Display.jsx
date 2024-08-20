@@ -1,24 +1,18 @@
-const Display = ({ messages }) => {
+import Post from './Post'
+
+const Display = ({ messages, handleUpdate }) => {
   return (
-    <ol>
+    <div>
       {messages.length === 0
         ? null
         : messages.map(messageItem => (
-            <li key={messageItem.key}>
-              <p>{messageItem.val.username}</p>
-              <p>Message: {messageItem.val.message}</p>
-              <p>Time: {messageItem.val.time}</p>
-              {messageItem.val.imgUrl ? (
-                <img
-                  src={messageItem.val.imgUrl}
-                  alt={`image from ${messageItem.val.username}`}
-                />
-              ) : (
-                <p>No image uploaded</p>
-              )}
-            </li>
+            <Post
+              key={messageItem.key}
+              messageItem={messageItem}
+              handleUpdate={handleUpdate}
+            />
           ))}
-    </ol>
+    </div>
   )
 }
 

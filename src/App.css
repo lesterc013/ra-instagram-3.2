@@ -36,3 +36,13 @@
 .card {
   padding: 2em;
 }
+
+.subtitle {
+  color: grey;
+  font-size: smaller;
+}
+
+.postImg {
+  width: 50vw;
+  height: 30vw;
+}

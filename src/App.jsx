@@ -1,7 +1,15 @@
 import logo from '/logo.png'
 import './App.css'
 import { database, storage } from './firebase'
-import { onChildAdded, push, ref, set } from 'firebase/database'
+import {
+  get,
+  onChildAdded,
+  onChildChanged,
+  push,
+  ref,
+  set,
+  update,
+} from 'firebase/database'
 import {
   uploadBytes,
   getDownloadURL,
@@ -31,22 +39,40 @@ function App() {
         [...prevState, { key: data.key, val: data.val() }]
       )
     })
+
+    onChildChanged(messagesRef, data => {
+      setMessages(prevState =>
+        prevState.map(messageItem =>
+          messageItem.key === data.key
+            ? { key: data.key, val: data.val() }
+            : messageItem
+        )
+      )
+    })
   }, [])
 
   // When someone submits a post, need to first store the image in storage; then store the url in database
   const handleSubmit = event => {
     event.preventDefault()
-    const fullStorageRef = storageRef(storage, STORAGE_KEY + file.name)
+    if (file) {
+      const fullStorageRef = storageRef(storage, STORAGE_KEY + file.name)
 
-    uploadBytes(fullStorageRef, file)
-      .then(() => {
-        getDownloadURL(fullStorageRef)
-          .then(imgUrl => {
-            writeData(imgUrl)
-          })
-          .catch(error => console.log(error))
-      })
-      .catch(error => console.log(error))
+      uploadBytes(fullStorageRef, file)
+        .then(() => {
+          getDownloadURL(fullStorageRef)
+            .then(imgUrl => {
+              writeData(imgUrl)
+            })
+            .catch(error => console.log(error))
+        })
+        .catch(error => console.log(error))
+    } else {
+      writeData(null)
+    }
+
+    setUsername('')
+    setMessage('')
+    setFile(null)
   }
 
   const writeData = imgUrl => {
@@ -57,6 +83,17 @@ function App() {
       message,
       time: new Date().toLocaleString(),
       imgUrl,
+      likes: 0,
+    })
+  }
+
+  const handleUpdate = (key, like) => {
+    const postRef = ref(database, `${DB_MESSAGES_KEY}/${key}`)
+    get(postRef).then(snapshot => {
+      update(postRef, {
+        ...snapshot.val(),
+        likes: snapshot.val().likes + like,
+      })
     })
   }
 
@@ -77,7 +114,7 @@ function App() {
           setFile={setFile}
           handleSubmit={handleSubmit}
         />
-        <Display messages={messages} />
+        <Display messages={messages} handleUpdate={handleUpdate} />
       </div>
     </>
   )
