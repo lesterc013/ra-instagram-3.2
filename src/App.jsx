@@ -56,7 +56,8 @@ function App() {
     event.preventDefault()
     if (file) {
       const fullStorageRef = storageRef(storage, STORAGE_KEY + file.name)
-
+      // uploadBytes actually returns an UploadFile object but we have no use for that - we are more interested in calling getDownloadURL if uploadBytes fulfills
+      // So that we can write to the db (writeData) and store the imgUrl to display
       uploadBytes(fullStorageRef, file)
         .then(() => {
           getDownloadURL(fullStorageRef)
@@ -88,7 +89,10 @@ function App() {
   }
 
   const handleUpdate = (key, like) => {
+    // Create a ref to the post we want to update
     const postRef = ref(database, `${DB_MESSAGES_KEY}/${key}`)
+
+    // Get the latest snapshot, and then update the post with all the all values and the new likes
     get(postRef).then(snapshot => {
       update(postRef, {
         ...snapshot.val(),
