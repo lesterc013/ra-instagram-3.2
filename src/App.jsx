@@ -23,6 +23,7 @@ import {
   createUserWithEmailAndPassword,
   onAuthStateChanged,
   signInWithEmailAndPassword,
+  signOut,
 } from 'firebase/auth'
 
 // Save the Firebase message folder name as a constant to avoid bugs due to misspelling
@@ -151,6 +152,9 @@ function App() {
         console.log('error message', error.message)
       }
     }
+
+    setEmail('')
+    setPassword('')
   }
 
   const conditionalRendering = () => {
@@ -182,6 +186,7 @@ function App() {
     if (loggedIn) {
       return (
         <div>
+          <button onClick={async () => await signOut(auth)}>Logout</button>
           <Composer
             writeData={writeData}
             username={username}
