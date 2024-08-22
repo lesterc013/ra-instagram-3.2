@@ -19,8 +19,6 @@ import { useState, useEffect } from 'react'
 import Composer from './Components/Composer'
 import Display from './Components/Display'
 import LoginSignUp from './Components/LoginSignUp'
-import Form from 'react-bootstrap/Form'
-import Button from 'react-bootstrap/Button'
 import {
   createUserWithEmailAndPassword,
   onAuthStateChanged,
@@ -39,6 +37,7 @@ function App() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loggedIn, setLoggedIn] = useState(false)
+  const [clickedLoginSignUp, setClickedLoginSignUp] = useState(false)
 
   useEffect(() => {
     const messagesRef = ref(database, DB_MESSAGES_KEY)
@@ -154,14 +153,35 @@ function App() {
     }
   }
 
-  return (
-    <>
-      <div>
-        <img src={logo} className='logo' alt='Rocket logo' />
-      </div>
-      <h1>Instagram Bootcamp</h1>
-      <div className='card'>
-        {loggedIn ? (
+  const conditionalRendering = () => {
+    if (!loggedIn && !clickedLoginSignUp) {
+      return (
+        <div>
+          <button onClick={() => setClickedLoginSignUp(true)}>
+            Create Account/Login
+          </button>
+          <Display messages={messages} handleUpdate={handleUpdate} />
+        </div>
+      )
+    }
+
+    if (!loggedIn && clickedLoginSignUp) {
+      return (
+        <div>
+          <LoginSignUp
+            email={email}
+            password={password}
+            setEmail={setEmail}
+            setPassword={setPassword}
+            handleLoginSignUp={handleLoginSignUp}
+          />
+        </div>
+      )
+    }
+
+    if (loggedIn) {
+      return (
+        <div>
           <Composer
             writeData={writeData}
             username={username}
@@ -171,17 +191,19 @@ function App() {
             setFile={setFile}
             handleSubmit={handleSubmit}
           />
-        ) : (
-          <LoginSignUp
-            email={email}
-            password={password}
-            setEmail={setEmail}
-            setPassword={setPassword}
-            handleLoginSignUp={handleLoginSignUp}
-          />
-        )}
-        <Display messages={messages} handleUpdate={handleUpdate} />
+          <Display messages={messages} handleUpdate={handleUpdate} />
+        </div>
+      )
+    }
+  }
+
+  return (
+    <>
+      <div>
+        <img src={logo} className='logo' alt='Rocket logo' />
       </div>
+      <h1>Instagram Bootcamp</h1>
+      <div className='card'>{conditionalRendering()}</div>
     </>
   )
 }
