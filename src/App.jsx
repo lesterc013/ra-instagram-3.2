@@ -1,6 +1,6 @@
 import logo from '/logo.png'
 import './App.css'
-import { database, storage } from './firebase'
+import { auth, database, storage } from './firebase'
 import {
   get,
   onChildAdded,
@@ -16,8 +16,16 @@ import {
   ref as storageRef,
 } from 'firebase/storage'
 import { useState, useEffect } from 'react'
-import Form from './Components/Form'
+import Composer from './Components/Composer'
 import Display from './Components/Display'
+import LoginSignUp from './Components/LoginSignUp'
+import Form from 'react-bootstrap/Form'
+import Button from 'react-bootstrap/Button'
+import {
+  createUserWithEmailAndPassword,
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+} from 'firebase/auth'
 
 // Save the Firebase message folder name as a constant to avoid bugs due to misspelling
 const DB_MESSAGES_KEY = 'messages'
@@ -28,6 +36,9 @@ function App() {
   const [username, setUsername] = useState('')
   const [message, setMessage] = useState('')
   const [file, setFile] = useState(null)
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [loggedIn, setLoggedIn] = useState(false)
 
   useEffect(() => {
     const messagesRef = ref(database, DB_MESSAGES_KEY)
@@ -48,6 +59,16 @@ function App() {
             : messageItem
         )
       )
+    })
+
+    onAuthStateChanged(auth, user => {
+      if (user) {
+        console.log(user)
+        setLoggedIn(true)
+      } else {
+        console.log('no user signed in')
+        setLoggedIn(false)
+      }
     })
   }, [])
 
@@ -101,6 +122,38 @@ function App() {
     })
   }
 
+  const handleLoginSignUp = async (email, password) => {
+    console.log('email', email)
+    console.log('password', password)
+    let errorCode = null
+    try {
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      )
+      console.log(userCredential)
+    } catch (error) {
+      console.log('error code', error.code)
+      errorCode = error.code
+      console.log('error message', error.message)
+    }
+
+    if (errorCode === 'auth/email-already-in-use') {
+      try {
+        const userCredential = await signInWithEmailAndPassword(
+          auth,
+          email,
+          password
+        )
+        console.log(userCredential)
+      } catch (error) {
+        console.log('error code', error.code)
+        console.log('error message', error.message)
+      }
+    }
+  }
+
   return (
     <>
       <div>
@@ -108,16 +161,25 @@ function App() {
       </div>
       <h1>Instagram Bootcamp</h1>
       <div className='card'>
-        {/* TODO: Add input field and add text input as messages in Firebase */}
-        <Form
-          writeData={writeData}
-          username={username}
-          setUsername={setUsername}
-          message={message}
-          setMessage={setMessage}
-          setFile={setFile}
-          handleSubmit={handleSubmit}
-        />
+        {loggedIn ? (
+          <Composer
+            writeData={writeData}
+            username={username}
+            setUsername={setUsername}
+            message={message}
+            setMessage={setMessage}
+            setFile={setFile}
+            handleSubmit={handleSubmit}
+          />
+        ) : (
+          <LoginSignUp
+            email={email}
+            password={password}
+            setEmail={setEmail}
+            setPassword={setPassword}
+            handleLoginSignUp={handleLoginSignUp}
+          />
+        )}
         <Display messages={messages} handleUpdate={handleUpdate} />
       </div>
     </>
