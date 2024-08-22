@@ -2,6 +2,7 @@
 import { initializeApp } from 'firebase/app'
 import { getDatabase } from 'firebase/database'
 import { getStorage } from 'firebase/storage'
+import { getAuth } from 'firebase/auth'
 
 // TODO: Replace with your app's Firebase project configuration
 const firebaseConfig = {
@@ -22,3 +23,6 @@ export const database = getDatabase(firebaseApp)
 
 // Export an instance of storage
 export const storage = getStorage(firebaseApp)
+
+// Export instance of auth
+export const auth = getAuth(firebaseApp)
