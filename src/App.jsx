@@ -38,7 +38,8 @@ function App() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loggedIn, setLoggedIn] = useState(false)
-  const [clickedLoginSignUp, setClickedLoginSignUp] = useState(false)
+  const [clickedLoginSignUpButton, setClickedLoginSignUpButton] =
+    useState(false)
 
   useEffect(() => {
     const messagesRef = ref(database, DB_MESSAGES_KEY)
@@ -64,6 +65,7 @@ function App() {
     onAuthStateChanged(auth, user => {
       if (user) {
         console.log(user)
+        setUsername(user.email.substring(0, user.email.lastIndexOf('@')))
         setLoggedIn(true)
       } else {
         console.log('no user signed in')
@@ -155,13 +157,14 @@ function App() {
 
     setEmail('')
     setPassword('')
+    setClickedLoginSignUpButton(false)
   }
 
   const conditionalRendering = () => {
-    if (!loggedIn && !clickedLoginSignUp) {
+    if (!loggedIn && !clickedLoginSignUpButton) {
       return (
         <div>
-          <button onClick={() => setClickedLoginSignUp(true)}>
+          <button onClick={() => setClickedLoginSignUpButton(true)}>
             Create Account/Login
           </button>
           <Display messages={messages} handleUpdate={handleUpdate} />
@@ -169,7 +172,7 @@ function App() {
       )
     }
 
-    if (!loggedIn && clickedLoginSignUp) {
+    if (!loggedIn && clickedLoginSignUpButton) {
       return (
         <div>
           <LoginSignUp

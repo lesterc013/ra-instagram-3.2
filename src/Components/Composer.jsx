@@ -1,22 +1,6 @@
-const Composer = ({
-  username,
-  setUsername,
-  message,
-  setMessage,
-  setFile,
-  handleSubmit,
-}) => {
+const Composer = ({ message, setMessage, setFile, handleSubmit }) => {
   return (
     <form onSubmit={handleSubmit}>
-      <label>Username</label>
-      <br />
-      <input
-        type='text'
-        name='username'
-        value={username}
-        onChange={e => setUsername(e.target.value)}
-      />
-      <br />
       <label>Message</label>
       <br />
       <input
