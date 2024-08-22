@@ -1,5 +1,6 @@
 import logo from '/logo.png'
 import './App.css'
+import 'bootstrap/dist/css/bootstrap.min.css'
 import { auth, database, storage } from './firebase'
 import {
   get,
@@ -25,6 +26,8 @@ import {
   signInWithEmailAndPassword,
   signOut,
 } from 'firebase/auth'
+import Navbar from 'react-bootstrap/Navbar'
+import Container from 'react-bootstrap/Container'
 
 // Save the Firebase message folder name as a constant to avoid bugs due to misspelling
 const DB_MESSAGES_KEY = 'messages'
@@ -189,7 +192,6 @@ function App() {
     if (loggedIn) {
       return (
         <div>
-          <button onClick={async () => await signOut(auth)}>Logout</button>
           <Composer
             writeData={writeData}
             username={username}
@@ -208,6 +210,16 @@ function App() {
   return (
     <>
       <div>
+        <Navbar className='bg-body-tertiary'>
+          <Navbar.Brand href='#home'>Rocketgram</Navbar.Brand>
+          <Navbar.Toggle />
+          {loggedIn ? (
+            <Navbar.Collapse className='justify-content-end'>
+              <Navbar.Text>Signed in as: {username}</Navbar.Text>
+              <button onClick={async () => await signOut(auth)}>Logout</button>
+            </Navbar.Collapse>
+          ) : null}
+        </Navbar>
         <img src={logo} className='logo' alt='Rocket logo' />
       </div>
       <h1>Instagram Bootcamp</h1>
